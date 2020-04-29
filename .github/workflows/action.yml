@@ -30,7 +30,7 @@ jobs:
       - name: Set up remote (epitech)
         shell: bash
         run: |
-          git remote add epitech git@git.epitech.eu:lilian.verlhac@epitech.eu/workshopMathieuTest
+          git remote add epitech git@git.epitech.eu:lilian.verlhac@epitech.eu/FUN_imageCompressor_2019
       - name : Push to repository (epitech)
         shell: bash
         run: |
