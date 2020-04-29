@@ -1,7 +1,15 @@
 module Main where
 
-import Lib
-import System.Exit
+-- System
+import Control.Exception (throw, handle)
+import System.Environment (getArgs)
+--
+
+import Exception (ICExceptions (SendHelp), exceptionHandler)
 
 main :: IO ()
-main = exitWith $ ExitFailure 84
+main = handle exceptionHandler $ getArgs >>= imageCompressor
+
+-- to change, potential final return type will be [String]
+imageCompressor :: [String] -> IO ()
+imageCompressor _ = throw SendHelp
