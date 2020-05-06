@@ -24,8 +24,9 @@ data Token = Limit Int | Path String | HELP
 
 
 readLimit :: Maybe Int -> Token
-readLimit (Just a) = Limit a
-readLimit Nothing  = throw $ BadArgument "Limits must be integer."
+readLimit (Just a) | a > 0     = Limit a
+                   | otherwise = throw $ BadArgument "Limits must be positive."
+readLimit Nothing              = throw $ BadArgument "Limits must be integer."
 
 lexer :: [String] -> [Token]
 lexer []        = []
