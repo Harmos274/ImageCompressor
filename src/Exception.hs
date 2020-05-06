@@ -3,7 +3,7 @@ module Exception
         exceptionHandler
     ) where
 
-import Control.Exception
+import Control.Exception (throw, Exception)
 import Epitech.ReturnType
 
 data ICExceptions = SendHelp

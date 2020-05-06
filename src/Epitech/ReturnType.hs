@@ -3,7 +3,7 @@ module Epitech.ReturnType
       failure
     ) where
 
-import System.Exit
+import System.Exit (exitSuccess, ExitCode (ExitFailure), exitWith)
 
 success :: IO ()
 success = exitSuccess
