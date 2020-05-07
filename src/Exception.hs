@@ -9,6 +9,7 @@ import Epitech.ReturnType
 data ICExceptions = SendHelp
                 | BadArgument String
                 | RuntimeException String
+                | FileReaderException
                 deriving (Show)
 instance Exception ICExceptions
 
@@ -22,3 +23,4 @@ exceptionHandler :: ICExceptions -> IO ()
 exceptionHandler SendHelp               = sendHelp >> success
 exceptionHandler (BadArgument s)        = putStrLn ("Bad argument : " ++ s) >> failure
 exceptionHandler (RuntimeException s)   = putStrLn ("Runtime exception : " ++ s) >> failure
+exceptionHandler FileReaderException    = putStrLn ("Invalid file") >> failure
