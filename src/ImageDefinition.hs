@@ -10,9 +10,9 @@ module ImageDefinition
      newPixel,
      X (..),
      Y (..),
-     R (..),
-     G (..),
-     B (..),
+     R,
+     G,
+     B,
     ) where
 
 import Control.Exception (throw)
@@ -30,9 +30,9 @@ showPosition (Position (X x) (Y y)) = "(" ++ show x ++ "," ++ show y ++ ")"
 newPosition :: Int -> Int -> Position
 newPosition x y = Position (X x) (Y y)
 
-type R = Int
-type G = Int
-type B = Int
+type R = Float
+type G = Float
+type B = Float
 
 data Color c = Color c c c deriving(Eq, Show)
 instance Num a => Num (Color a) where
@@ -43,17 +43,17 @@ instance Num a => Num (Color a) where
     signum (Color r g b)    = Color (signum r) (signum g) (signum b)
     fromInteger             = throw $ RuntimeException "Can't use fromInteger with a Color data type."
 
-showColor :: Color Int -> String
-showColor (Color r g b) = "("++ show r ++ "," ++ show g ++ "," ++ show b ++ ")"
+showColor :: Color Float -> String
+showColor (Color r g b) = "("++ show (round r) ++ "," ++ show (round g) ++ "," ++ show (round b) ++ ")"
 
-newColor :: R -> G -> B -> Color Int
+newColor :: R -> G -> B -> Color Float
 newColor = Color
 
-data Pixel = Pixel Position (Color Int)
+data Pixel = Pixel Position (Color Float)
 
 showPixels :: [Pixel] -> [String]
 showPixels [] = []
 showPixels (Pixel pos col:xs) = (showPosition pos ++ " " ++ showColor col) : showPixels xs
 
-newPixel :: (Position, Color Int) -> Pixel
+newPixel :: (Position, Color Float) -> Pixel
 newPixel (p, c) = Pixel p c

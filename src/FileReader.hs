@@ -19,8 +19,8 @@ parseFile str = map (parser . lexer) $ lines str
 parser :: [Token] -> Pixel
 parser = newPixel . second parseColor . parsePosition
 
-parseColor :: [Token] -> Color Int
-parseColor [Space, OpenParen, r, Comma, g, Comma, b, CloseParen] = newColor (readValue r) (readValue g) (readValue b)
+parseColor :: [Token] -> Color Float
+parseColor [Space, OpenParen, r, Comma, g, Comma, b, CloseParen] = newColor (readColor r) (readColor g) (readColor b)
 parseColor _ = throw FileReaderException
 
 parsePosition :: [Token] -> (Position, [Token])
@@ -39,6 +39,16 @@ lexer str      = Value nbr : lexer xs
 getDigits :: String -> (String, String)
 getDigits = span isDigit
 
+readColor :: Token -> Float
+readColor (Value v) = readColor' (readMaybe v)
+readColor _         = throw FileReaderException
+
+readColor' :: Maybe Float -> Float
+readColor' (Just value) | value >= 0 && value <= 255 = value
+                        | otherwise = throw FileReaderException
+readColor' Nothing = throw FileReaderException
+
+
 readValue :: Token -> Int
 readValue (Value v) = readValue' (readMaybe v)
 readValue _         = throw FileReaderException
@@ -47,6 +57,4 @@ readValue' :: Maybe Int -> Int
 readValue' (Just value) | value >= 0 && value <= 255 = value
                         | otherwise = throw FileReaderException
 readValue' Nothing = throw FileReaderException
-
-
 
