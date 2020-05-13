@@ -29,14 +29,14 @@ isColorInCluster col (Cluster ccol _:xs) | col == ccol = True
 
 initClusters :: [Pixel] -> ColorLimit -> [Cluster]
 initClusters pix clim@(ColorLimit lim) | length pix >= lim = initClusters' [] pix clim
-                                       | otherwise = throw $ RuntimeException "Not enough different color to make clusters."
+                                       | otherwise = throw $ RuntimeException "Not enough different colors to make clusters."
 
 initClusters' :: [Cluster] -> [Pixel] -> ColorLimit -> [Cluster]
 initClusters' l _  (ColorLimit 0) = l
 initClusters' _ [] _              = throw $ RuntimeException "Not enough pixels to make clusters."
-initClusters' [] (pix@(Pixel pos col):xs) (ColorLimit lim) = initClusters' [Cluster col [pix]] xs (ColorLimit (lim - 1))
-initClusters' l  (pix@(Pixel pos col):xs) clim@(ColorLimit lim) | isColorInCluster col l = initClusters' l xs clim
-                                                                | otherwise              = initClusters' (l ++ [Cluster col [pix]]) xs (ColorLimit (lim - 1))
+initClusters' [] (pix@(Pixel _ col):xs) (ColorLimit lim) = initClusters' [Cluster col [pix]] xs (ColorLimit (lim - 1))
+initClusters' l  (pix@(Pixel _ col):xs) clim@(ColorLimit lim) | isColorInCluster col l = initClusters' l xs clim
+                                                              | otherwise              = initClusters' (l ++ [Cluster col [pix]]) xs (ColorLimit (lim - 1))
 
 compressor :: [Cluster] -> [Pixel] -> ConvergenceLimit -> [Cluster]
 compressor old pix limit | hasConverged limit old new = old
