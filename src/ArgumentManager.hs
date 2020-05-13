@@ -15,13 +15,13 @@ import Control.Exception (throw)
 
 import Exception (ICExceptions (BadArgument, SendHelp))
 
-newtype ColorLimit = ColorLimit Int deriving(Show)
-newtype ConvergenceLimit = ConvergenceLimit Float deriving(Show)
-newtype Path = FilePath String deriving(Show)
+newtype ColorLimit = ColorLimit Int
+newtype ConvergenceLimit = ConvergenceLimit Float
+newtype Path = FilePath String
 
 data Token = Limit String | Path String | HELP
 
-data Argument = Argument ColorLimit ConvergenceLimit Path deriving(Show)
+data Argument = Argument ColorLimit ConvergenceLimit Path
 
 newArgument :: ColorLimit -> ConvergenceLimit -> String -> Argument
 newArgument col conv l = Argument col conv (FilePath l)
@@ -29,12 +29,12 @@ newArgument col conv l = Argument col conv (FilePath l)
 readConvergenceLimit :: Maybe Float -> ConvergenceLimit
 readConvergenceLimit (Just a) | a > 0     = ConvergenceLimit a
                               | otherwise = throw $ BadArgument "Convergence limit must be positive."
-readConvergenceLimitNothing               = throw $ BadArgument "Convergence limit must be integer."
+readConvergenceLimit Nothing              = throw $ BadArgument "Convergence limit must be a float."
 
 readColorLimit :: Maybe Int -> ColorLimit
 readColorLimit (Just a) | a > 0     = ColorLimit a
                         | otherwise = throw $ BadArgument "Color limit must be positive."
-readColorLimit Nothing              = throw $ BadArgument "Color limit must be integer."
+readColorLimit Nothing              = throw $ BadArgument "Color limit must be an integer."
 
 lexer :: [String] -> [Token]
 lexer []        = []
