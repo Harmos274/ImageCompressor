@@ -2,10 +2,10 @@ module FileReader
     (parseFile
     ) where
 
-import Control.Exception(throw)
-import Text.Read(readMaybe)
-import Data.Char(isDigit)
-import Control.Arrow(second)
+import Control.Exception (throw)
+import Text.Read (readMaybe)
+import Data.Char (isDigit)
+import Control.Arrow (second)
 
 import Exception (ICExceptions(FileReaderException))
 import ImageDefinition.Pixel (Pixel, newPixel)
