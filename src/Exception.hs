@@ -3,7 +3,7 @@ module Exception
         exceptionHandler
     ) where
 
-import Control.Exception (throw, Exception)
+import Control.Exception (Exception)
 import Epitech.ReturnType
 
 data ICExceptions = SendHelp
@@ -11,6 +11,7 @@ data ICExceptions = SendHelp
                 | RuntimeException String
                 | FileReaderException
                 deriving (Show)
+
 instance Exception ICExceptions
 
 sendHelp :: IO ()

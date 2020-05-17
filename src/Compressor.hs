@@ -1,83 +1,86 @@
 module Compressor
     ( compressor,
-      showCluster,
+      showClusters,
       initClusters,
-      Cluster (..)
     ) where
 
-import ArgumentManager (ConvergenceLimit (..), ColorLimit (..))
-import ImageDefinition (Color (Color), Pixel (Pixel), Position(..), showColor, showPixels)
-import Exception (ICExceptions(RuntimeException))
+import ArgumentManager (ConvergenceLimit (ConvergenceLimit), ColorLimit (ColorLimit))
+import ImageDefinition.Color (Color (Color), R(..), G(..), B(..), FloatFractionable (..))
+import ImageDefinition.Pixel (Pixel(Pixel))
+import ImageDefinition.Cluster
+import Exception (ICExceptions (RuntimeException))
 
 import Data.List (sortOn)
 import Control.Exception (throw)
 
-type AverageColor = Color Float
 type OldCluster = Cluster
 type NewCluster = Cluster
-
-data Cluster = Cluster AverageColor [Pixel]
-
-showCluster :: [Cluster] -> [String]
-showCluster [] = []
-showCluster (Cluster col pix:xs) = ["--", showColor col, "-"] ++ showPixels pix ++ showCluster xs
-
-isColorInCluster :: Color Float -> [Cluster] -> Bool
-isColorInCluster col [] = False
-isColorInCluster col (Cluster ccol _:xs) | col == ccol = True
-                                         | otherwise   = isColorInCluster col xs
+type Distance   = Float
 
 initClusters :: [Pixel] -> ColorLimit -> [Cluster]
-initClusters pix clim@(ColorLimit lim) | length pix >= lim = initClusters' [] pix clim
-                                       | otherwise = throw $ RuntimeException "Not enough different colors to make clusters."
+initClusters = initClusters' []
 
+{-# INLINE initClusters' #-}
 initClusters' :: [Cluster] -> [Pixel] -> ColorLimit -> [Cluster]
-initClusters' l _  (ColorLimit 0) = l
-initClusters' _ [] _              = throw $ RuntimeException "Not enough pixels to make clusters."
-initClusters' [] (pix@(Pixel _ col):xs) (ColorLimit lim) = initClusters' [Cluster col [pix]] xs (ColorLimit (lim - 1))
-initClusters' l  (pix@(Pixel _ col):xs) clim@(ColorLimit lim) | isColorInCluster col l = initClusters' l xs clim
-                                                              | otherwise              = initClusters' (l ++ [Cluster col [pix]]) xs (ColorLimit (lim - 1))
+initClusters' _  []                     _              = throw $ RuntimeException "Not enough different colors to make clusters."
+initClusters' l  _                      (ColorLimit 0) = l
+initClusters' l  (pix@(Pixel _ col):xs) lim            | isColorInCluster col l = initClusters' l xs lim
+                                                       | otherwise              = initClusters' (Cluster col col [pix]:l) xs $ lim - 1
+
+isColorInCluster :: Color -> [Cluster] -> Bool
+isColorInCluster _   []                    = False
+isColorInCluster col (Cluster ccol _ _:xs) | col == ccol = True
+                                           | otherwise   = isColorInCluster col xs
 
 compressor :: [Cluster] -> [Pixel] -> ConvergenceLimit -> [Cluster]
-compressor old pix limit | hasConverged limit old new = old
-                         | otherwise = compressor new pix limit
-                         where new = fillCluster pix $ clusterMean old
+compressor cl pix = compressor' (createNewClusters pix cl) [] pix
 
-fillCluster :: [Pixel] -> [Cluster] -> [Cluster]
+{-# INLINE compressor' #-}
+compressor' :: [OldCluster] -> [NewCluster] -> [Pixel] -> ConvergenceLimit -> [Cluster]
+compressor' old []  pix lim = compressor' old (createNewClusters pix old) pix lim
+compressor' old new pix lim | hasConverged lim new = old
+                            | otherwise            = compressor' new [] pix lim
+
+createNewClusters :: [Pixel] -> [OldCluster] -> [NewCluster]
+createNewClusters pix = fillCluster pix . clusterMean
+
+fillCluster :: [Pixel] -> [Cluster] -> [NewCluster]
 fillCluster pixels clusters = foldl assignCluster clusters pixels
 
 assignCluster :: [Cluster] -> Pixel -> [Cluster]
-assignCluster cluster pix =  assignCluster' pix $ sortOn (clusterEuclideanDistance pix) cluster
+assignCluster cluster pix = assignCluster' pix $ sortOn (clusterEuclideanDistance pix) cluster
 
-euclideanDistance :: Color Float -> Color Float -> Float
-euclideanDistance (Color r1 g1 b1) (Color r2 g2 b2) = sqrt $ ((r1 - r2)^2) + ((g1 - g2)^2) + ((b1 - b2)^2)
-
-clusterEuclideanDistance :: Pixel -> Cluster -> Float
-clusterEuclideanDistance (Pixel _ pixcol) (Cluster cluscol _) = euclideanDistance pixcol cluscol
-
+{-# INLINE assignCluster' #-}
 assignCluster' :: Pixel -> [Cluster] -> [Cluster]
-assignCluster' pix ((Cluster av l):xs) = Cluster av (pix:l) : xs
+assignCluster' _   []                    = throw $ RuntimeException "Impossible happened."
+assignCluster' pix (Cluster oav av l:xs) = Cluster oav av (pix:l) : xs
+
+clusterEuclideanDistance :: Pixel -> Cluster -> Distance
+clusterEuclideanDistance (Pixel _ pixcol) (Cluster cluscol _ _) = euclideanDistance pixcol cluscol
+
+euclideanDistance :: Color -> Color -> Distance
+euclideanDistance (Color (R x1) (G y1) (B z1)) (Color (R x2) (G y2) (B z2)) = sqrt $ ((x1 - x2)^2) + ((y1 - y2)^2) + ((z1 - z2)^2)
 
 clusterMean :: [Cluster] -> [Cluster]
 clusterMean = map clusterMean'
 
+{-# INLINE clusterMean' #-}
 clusterMean' :: Cluster -> Cluster
-clusterMean' (Cluster _ pix) = Cluster (colorMean pix) []
+clusterMean' (Cluster old _ pix) = Cluster (colorMean pix) old []
 
-colorMean :: [Pixel] -> Color Float
-colorMean [] = Color 0 0 0
-colorMean pl@(Pixel _ color:xs) = divColor (sumColor $ extractColor pl) $ length pl
+colorMean :: [Pixel] -> Color
+colorMean p = sumColorOfPixels p `divColor` fromIntegral (length p)
 
-extractColor :: [Pixel] -> [Color Float]
-extractColor [] = []
-extractColor (Pixel _ color:xs) = color : extractColor xs
+sumColorOfPixels :: [Pixel] -> Color
+sumColorOfPixels = foldl sumExtractedColor (Color 0 0 0)
 
-sumColor :: [Color Float] -> Color Float
-sumColor = foldr (+) (Color 0 0 0)
+sumExtractedColor :: Color -> Pixel -> Color
+sumExtractedColor c (Pixel _ color) = c + color
 
-divColor :: Color Float -> Int -> Color Float
-divColor (Color r g b) len = Color (r / fromIntegral len) (g / fromIntegral len) (b / fromIntegral len)
+divColor :: Color -> Float -> Color
+divColor (Color r g b) len = Color (len `divide` r) (len `divide` g) (len `divide` b)
 
-hasConverged :: ConvergenceLimit -> [OldCluster] -> [NewCluster] -> Bool
-hasConverged _ [] [] = True
-hasConverged clim@(ConvergenceLimit lim) ((Cluster ocol _):oxs) ((Cluster ncol _):nxs) = (euclideanDistance ocol ncol <= lim) && hasConverged clim oxs nxs
+hasConverged :: ConvergenceLimit -> [NewCluster] -> Bool
+hasConverged _                        []                       = True
+hasConverged l@(ConvergenceLimit lim) (Cluster ocol ncol _:xs) | euclideanDistance ocol ncol > lim = False
+                                                               | otherwise                         = hasConverged l xs
