@@ -5,10 +5,11 @@ import Control.Exception (throw, handle, catch, IOException)
 import System.Environment (getArgs)
 --
 
-import ArgumentManager
-import ImageDefinition (Pixel(..))
-import Compressor
-import FileReader
+import ArgumentManager (Argument (..), getPath, parseAndLexArguments)
+import ImageDefinition.Cluster (Cluster, showClusters)
+import ImageDefinition.Pixel (Pixel)
+import Compressor (compressor, initClusters)
+import FileReader (parseFile)
 import Exception (exceptionHandler, ICExceptions(..))
 
 main :: IO ()
@@ -16,11 +17,7 @@ main = handle exceptionHandler $
        do argv <- getArgs
           let args = parseAndLexArguments argv
           fileContent <- catch (readFile $ getPath args) (\e -> throw $ BadArgument $ show (e::IOException))
-          mapM_ putStrLn (showCluster $ imageCompressor args $ parseFile fileContent)
-
-
-parseAndLexArguments :: [String] -> Argument
-parseAndLexArguments l = parser $ lexer l
+          mapM_ putStrLn (showClusters . imageCompressor args $ parseFile fileContent)
 
 imageCompressor :: Argument -> [Pixel] -> [Cluster]
-imageCompressor (Argument col conv (FilePath path)) pix = compressor (initClusters pix col) pix conv
+imageCompressor (Argument col conv _) pix = compressor (initClusters pix col) pix conv
