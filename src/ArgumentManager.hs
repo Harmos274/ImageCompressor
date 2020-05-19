@@ -9,6 +9,7 @@ module ArgumentManager
       Argument (..),
       ColorLimit (..),
       ConvergenceLimit (..),
+      Token (..),
       Path (..)
     ) where
 
