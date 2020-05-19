@@ -3,14 +3,13 @@ module ArgumentTest
       parserTest
     ) where
 
-
+import Control.Exception (evaluate)
 import Test.Tasty
 import Test.Tasty.HUnit
 
 import Exception (ICExceptions (SendHelp, BadArgument))
 import Assert (assertICException)
 import ArgumentManager (lexer, parser, Token (..), Argument (..), ColorLimit (..), ConvergenceLimit (..), Path (..))
-import Control.Exception (evaluate)
 
 newtype TestToken = TestToken Token
 
