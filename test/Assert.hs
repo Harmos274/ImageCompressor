@@ -7,7 +7,7 @@ import Exception (ICExceptions (..))
 import Control.Exception (handleJust)
 import Control.Monad (return, guard)
 
-newtype TestException = TestException ICExceptions deriving(Show)
+newtype TestException = TestException ICExceptions deriving Show
 
 instance Eq TestException where
     (TestException SendHelp)             == (TestException SendHelp)             = True
