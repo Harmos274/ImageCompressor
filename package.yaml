@@ -37,9 +37,13 @@ executables:
 
 tests:
   imageCompressor-test:
-    main:                Spec.hs
+    main:                MainTest.hs
     source-dirs:         test
     ghc-options:
     - -Wall
     dependencies:
+    - HUnit
+    - tasty
+    - tasty-hunit
+    - deepseq
     - imageCompressor

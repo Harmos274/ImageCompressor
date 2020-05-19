@@ -2,6 +2,10 @@ module Compressor
     ( compressor,
       showClusters,
       initClusters,
+      euclideanDistance,
+      hasConverged,
+      fillCluster,
+      clusterMean
     ) where
 
 import ArgumentManager (ConvergenceLimit (ConvergenceLimit), ColorLimit (ColorLimit))
@@ -22,8 +26,8 @@ initClusters = initClusters' []
 
 {-# INLINE initClusters' #-}
 initClusters' :: [Cluster] -> [Pixel] -> ColorLimit -> [Cluster]
-initClusters' _  []                     _              = throw $ RuntimeException "Not enough different colors to make clusters."
 initClusters' l  _                      (ColorLimit 0) = l
+initClusters' _  []                     _              = throw $ RuntimeException "Not enough different colors to make clusters."
 initClusters' l  (pix@(Pixel _ col):xs) lim            | isColorInCluster col l = initClusters' l xs lim
                                                        | otherwise              = initClusters' (Cluster col col [pix]:l) xs $ lim - 1
 

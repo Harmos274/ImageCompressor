@@ -7,7 +7,7 @@ module ImageDefinition.Pixel
 import ImageDefinition.Position (Position)
 import ImageDefinition.Color (Color)
 
-data Pixel = Pixel Position Color deriving(Eq)
+data Pixel = Pixel Position Color deriving Eq
 instance Show Pixel where
     show (Pixel pos col) = show pos ++ ' ' : show col
 

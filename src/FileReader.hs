@@ -1,5 +1,10 @@
 module FileReader
-    (parseFile
+    ( parseFile,
+      parser,
+      lexer,
+      Token(..),
+      readValue,
+      readColor,
     ) where
 
 import Control.Exception (throw)
@@ -18,7 +23,8 @@ parseFile :: String -> [Pixel]
 parseFile str = map (parser . lexer) $ lines str
 
 parser :: [Token] -> Pixel
-parser = newPixel . second parseColor . parsePosition
+parser [] = throw FileReaderException
+parser t  = (newPixel . second parseColor . parsePosition) t
 
 parseColor :: [Token] -> Color
 parseColor [Space, OpenParen, r, Comma, g, Comma, b, CloseParen] = newColor (readColor r) (readColor g) (readColor b)
