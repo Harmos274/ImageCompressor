@@ -1,0 +1,77 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 06860a7971341eb6241eea297353ddb4683855c90f5e0ea791eb89b8cc6a842c
+
+name:           ImageCompressor
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/Harmos274/ImageCompressor#readme>
+homepage:       https://github.com/Harmos274/ImageCompressor#readme
+bug-reports:    https://github.com/Harmos274/ImageCompressor/issues
+author:         Lilian VERLHAC, Alban GAROFOLI
+maintainer:     lilian.verlhac@epitech.eu
+copyright:      2020 Lilian VERLHAC & Alban GAROFOLI
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/Harmos274/ImageCompressor
+
+library
+  exposed-modules:
+      ArgumentManager
+      Compressor
+      Epitech.ReturnType
+      Exception
+      FileReader
+      ImageDefinition.Cluster
+      ImageDefinition.Color
+      ImageDefinition.Pixel
+      ImageDefinition.Position
+  other-modules:
+      Paths_ImageCompressor
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+executable imageCompressor-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_ImageCompressor
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -O2
+  build-depends:
+      ImageCompressor
+    , base >=4.7 && <5
+  default-language: Haskell2010
+
+test-suite imageCompressor-test
+  type: exitcode-stdio-1.0
+  main-is: MainTest.hs
+  other-modules:
+      ArgumentTest
+      Assert
+      CompressorTest
+      FileReaderTest
+      Paths_ImageCompressor
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
+  build-depends:
+      HUnit
+    , base >=4.7 && <5
+    , deepseq
+    , imageCompressor
+    , tasty
+    , tasty-hunit
+  default-language: Haskell2010
