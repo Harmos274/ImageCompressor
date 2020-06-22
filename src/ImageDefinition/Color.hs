@@ -10,6 +10,7 @@ module ImageDefinition.Color
 
 import Control.Exception (throw)
 import Exception (ICExceptions (RuntimeException))
+import Netpbm.PPM.Definition (PpmTranslatable (..))
 
 class FloatFractionable a where
     divide :: Float -> a -> a
@@ -17,14 +18,22 @@ class FloatFractionable a where
 newtype R = R Float deriving(Num, Eq, Fractional, Ord, Real, RealFrac)
 instance FloatFractionable R where
     divide i (R a) = R (a / i)
+instance PpmTranslatable R where
+    toOctet = toEnum . round
 
 newtype G = G Float deriving(Num, Eq, Fractional, Ord, Real, RealFrac)
 instance FloatFractionable G where
     divide i (G a) = G (a / i)
+instance PpmTranslatable G where
+    toOctet = toEnum . round
+
 
 newtype B = B Float deriving(Num, Eq, Fractional, Ord, Real, RealFrac)
 instance FloatFractionable B where
     divide i (B a) = B (a / i)
+instance PpmTranslatable B where
+    toOctet = toEnum . round
+
 
 type Rf = Float
 type Gf = Float

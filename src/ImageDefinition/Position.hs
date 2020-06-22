@@ -5,8 +5,8 @@ module ImageDefinition.Position
      Y (..),
     ) where
 
-newtype X     = X Int deriving(Eq)
-newtype Y     = Y Int deriving(Eq)
+newtype X     = X Int deriving(Eq, Ord)
+newtype Y     = Y Int deriving(Eq, Ord)
 
 data Position = Position X Y deriving(Eq)
 
