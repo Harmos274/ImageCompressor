@@ -48,5 +48,5 @@ $> stack test
 ```
 <br>
 
-## Note:
-I could rework the project for fun to allow `bmp` format. Not ***certainly***, but i could do it.
+## Ouput:
+A binary [netpbm](https://en.wikipedia.org/wiki/Netpbm) `.ppm` picture (P6).
